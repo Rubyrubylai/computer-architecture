@@ -40,17 +40,22 @@ li $v0, 5
 syscall
 move $s2, $v0
 
-# execute madd
+# d = abs_sub(b, madd(a, c))
+move $a0, $s0
+move $a1, $s2
 jal Madd
 
+move $a0, $s1
+move $a1, $v0
 jal AbsSub
+move $s3, $v0
 
 # print result
 la $a0, PResult
 li $v0, 4
 syscall
 
-move $a0, $v1
+move $a0, $s3
 li $v0, 1
 syscall
 
@@ -58,34 +63,15 @@ j Exit
 
 # abs_sub(b, madd(a, c))
 AbsSub:
-# x >= y -> x < y
-# $s1, $v1
-slt $at, $s1, $v1
-# else
-bne $at, $zero, SetSubLargeY
+# return (x >= y) ? x - y : y - x
+slt $t3, $a0, $a1
+bne $t3, $zero, SubYMinusX
 
-# if x >= y
-move $t1, $s1
-j SubSmall
+sub $v0, $a0, $a1
+jr $ra
 
-SetSubLargeY:
-move $t1, $v1
-
-SubSmall:
-# x <= y -> x > y
-slt $at, $v1, $s1
-bne $at, $zero, SetSubSmallY
-
-# if x <= y
-move $t2, $s1
-j Sub
-
-SetSubSmallY:
-move $t2, $v1
-
-Sub:
-sub $v1, $t1, $t2
-
+SubYMinusX:
+sub $v0, $a1, $a0
 jr $ra
 
 
@@ -94,39 +80,39 @@ Madd:
 move $t0, $zero
 
 # x >= y -> x < y
-slt $at, $s0, $s2
+slt $t3, $a0, $a1
 # else
-bne $at, $zero, SetLargeY
+bne $t3, $zero, SetLargeY
 
 # if x >= y
-move $t1, $s0
+move $t1, $a0
 j Small
 
 SetLargeY:
-move $t1, $s2
+move $t1, $a1
 
 Small:
 # x <= y -> x > y
-slt $at, $s2, $s0
-bne $at, $zero, SetSmallY
+slt $t3, $a1, $a0
+bne $t3, $zero, SetSmallY
 
 # if x <= y
-move $t2, $s0
+move $t2, $a0
 j Loop
 
 SetSmallY:
-move $t2, $s2
+move $t2, $a1
 
 Loop:
 # large < small
-slt $at, $t1, $t2
-bne $at, $zero, RetrurnMadd
+slt $t3, $t1, $t2
+bne $t3, $zero, ReturnMadd
 add $t0, $t0, $t2
 addi $t1, $t1, -1
 j Loop
 
-RetrurnMadd:
-move $v1, $t0
+ReturnMadd:
+move $v0, $t0
 jr $ra
 
 Exit:
