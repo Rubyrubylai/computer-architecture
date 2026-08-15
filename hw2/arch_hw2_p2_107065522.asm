@@ -8,7 +8,6 @@ P6Star:   .asciiz "******"
 P9Star:   .asciiz "*********"
 
 .text
-.globl main
 
 main:
 
