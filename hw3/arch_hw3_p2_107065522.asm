@@ -62,7 +62,11 @@ syscall
 j Exit
 
 Re:
-# 儲存 stack
+# Stack frame:
+# 0($sp): x
+# 4($sp): return address
+# 8($sp): x * x
+# 12($sp): x * re(x - 1)
 addi $sp, $sp, -16
 sw $ra, 4($sp)
 sw $a0, 0($sp)
@@ -102,7 +106,8 @@ addi $sp, $sp, 16
 jr $ra
 
 XSmallerThan2:
-beq $a0, 1, XEqual1
+li $t0, 1
+beq $a0, $t0, XEqual1
 
 li $v0, 0
 
@@ -120,6 +125,12 @@ addi $sp, $sp, 16
 jr $ra
 
 Fn:
+# Stack frame:
+# 0($sp): x
+# 4($sp): y
+# 8($sp): return address
+# 12($sp): 3 * fn(x - 1, y)
+# 16($sp): 2 * fn(x, y - 1)
 addi $sp, $sp, -20
 sw $ra, 8($sp)
 sw $a1, 4($sp)
