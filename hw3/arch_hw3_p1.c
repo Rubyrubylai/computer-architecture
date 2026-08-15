@@ -1,0 +1,47 @@
+#include "math.h"
+#include "stdio.h"
+
+int abs_sub(int x, int y);
+int madd(int x, int y);
+
+int main() {
+    int a = 0;
+    int b = 0;
+    int c = 0;
+    int d = 0;
+
+    printf("input a:");
+    scanf("%d", &a);
+
+    printf("input b:");
+    scanf("%d", &b);
+
+    printf("input c:");
+    scanf("%d", &c);
+
+    d = abs_sub(b, madd(a, c));
+
+    printf("result = %d", d);
+
+    return 0;
+}
+
+int abs_sub(int x, int y) {
+    int large = (x >= y) ? x : y;
+    int small = (x <= y) ? x : y;
+
+    return large - small;
+}
+
+int madd(int x, int y) {
+    int ans = 0;
+    int large = (x >= y) ? x : y;
+    int small = (x <= y) ? x : y;
+
+    while (large >= small) {
+        ans = ans + small;
+        large = large - 1;
+    }
+
+    return ans;
+}
