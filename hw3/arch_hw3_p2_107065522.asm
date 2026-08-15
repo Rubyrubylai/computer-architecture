@@ -44,6 +44,21 @@ move $a0, $s2
 li $v0, 1
 syscall
 
+# call fn
+move $a0, $s1
+move $a1, $s2
+jal Fn
+move $s3, $v0
+
+# answer d
+la $a0, PAns
+li $v0, 4
+syscall
+
+move $a0, $s3
+li $v0, 1
+syscall
+
 j Exit
 
 Re:
@@ -102,6 +117,72 @@ li $v0, 1
 # 恢復 stack
 lw $ra, 4($sp)
 addi $sp, $sp, 16
+jr $ra
+
+Fn:
+addi $sp, $sp, -20
+sw $ra, 8($sp)
+sw $a1, 4($sp)
+sw $a0, 0($sp)
+
+# x > 0
+slt $t0, $zero, $a0
+bne $t0, $zero, Second
+
+li $v0, 0
+lw $ra, 8($sp)
+addi $sp, $sp, 20
+jr $ra
+
+# y > 0
+Second:
+slt $t0, $zero, $a1
+bne $t0, $zero, Third
+
+li $v0, 0
+lw $ra, 8($sp)
+addi $sp, $sp, 20
+jr $ra
+
+# y < x
+Third:
+slt $t0, $a1, $a0
+beq $t0, $zero, Last
+
+li $v0, 2
+lw $ra, 8($sp)
+addi $sp, $sp, 20
+jr $ra
+
+# 3 * fn(x - 1, y) + 2 * fn(x, y - 1) + fn(x - 1, y - 1);
+Last:
+lw $a1, 4($sp)
+lw $a0, 0($sp)
+addi $a0, $a0, -1
+jal Fn
+mul $t0, $v0, 3
+sw $t0, 12($sp)
+
+lw $a1, 4($sp)
+lw $a0, 0($sp)
+addi $a1, $a1, -1
+jal Fn
+mul $t0, $v0, 2
+sw $t0, 16($sp)
+
+lw $a1, 4($sp)
+lw $a0, 0($sp)
+addi $a0, $a0, -1
+addi $a1, $a1, -1
+jal Fn
+
+lw $t0, 12($sp)
+lw $t1, 16($sp)
+add $v0, $v0, $t0
+add $v0, $v0, $t1
+
+lw $ra, 8($sp)
+addi $sp, $sp, 20
 jr $ra
 
 Exit:
