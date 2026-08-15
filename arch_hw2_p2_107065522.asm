@@ -6,7 +6,9 @@ PTheEnd:  .asciiz "THE END"
 PAmulti:  .asciiz "A * 2 = "
 P6Star:   .asciiz "******"
 P9Star:   .asciiz "*********"
+
 .text
+.globl main
 
 main:
 
@@ -38,9 +40,9 @@ li $t1, 7
 beq $t0, $t1, PrintMulti
 
 # for loop
-li $s0 0
+li $t3, 0
 ForLoop:
-slt $t2, $s0, $t0
+slt $t2, $t3, $t0
 bne $t2, $zero, PrintStar
 
 j Loop
@@ -71,14 +73,14 @@ PrintStar:
 la $a0, P6Star
 li $v0, 4
 syscall
-move $a0, $s0
+move $a0, $t3
 li $v0, 1
 syscall
 la $a0, P9Star
 li $v0, 4
 syscall
 jal PrintNewline
-addi $s0, $s0, 1
+addi $t3, $t3, 1
 j ForLoop
 
 PrintNewline:
